@@ -16,12 +16,10 @@ import {
  * Oracle contract for handling data requests and whitelisting
  */
 export class Oracle extends arc4.Contract {
-  // Global state
   admin = GlobalState<Account>()
   watcher = GlobalState<Account>()
   fee = GlobalState<uint64>()
 
-  // Local state with initial value
   isWhitelisted = LocalState<boolean>()
 
   /**

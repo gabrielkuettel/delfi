@@ -1,0 +1,330 @@
+#pragma version 10
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 1 0 1000
+    bytecblock "isWhitelisted" "admin" "watcher" "fee"
+    // smart_contracts/oracle/contract.algo.ts:18
+    // export class Oracle extends arc4.Contract {
+    txn NumAppArgs
+    bz main_after_if_else@10
+    pushbytess 0xb8447b36 0x4840fe00 0x01a3a3ff 0x68e8421d // method "createApplication()void", method "requestData(pay,string,asset,string)void", method "optInToApplication()void", method "setWhitelist(account,bool)void"
+    txna ApplicationArgs 0
+    match main_createApplication_route@3 main_requestData_route@4 main_optInToApplication_route@5 main_setWhitelist_route@6
+
+main_after_if_else@10:
+    // smart_contracts/oracle/contract.algo.ts:18
+    // export class Oracle extends arc4.Contract {
+    intc_1 // 0
+    return
+
+main_setWhitelist_route@6:
+    // smart_contracts/oracle/contract.algo.ts:86
+    // @abimethod({ allowActions: 'NoOp' })
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // smart_contracts/oracle/contract.algo.ts:18
+    // export class Oracle extends arc4.Contract {
+    txna ApplicationArgs 1
+    btoi
+    txnas Accounts
+    txna ApplicationArgs 2
+    intc_1 // 0
+    getbit
+    // smart_contracts/oracle/contract.algo.ts:86
+    // @abimethod({ allowActions: 'NoOp' })
+    callsub setWhitelist
+    intc_0 // 1
+    return
+
+main_optInToApplication_route@5:
+    // smart_contracts/oracle/contract.algo.ts:74
+    // @abimethod({ allowActions: 'OptIn' })
+    txn OnCompletion
+    intc_0 // OptIn
+    ==
+    assert // OnCompletion is not OptIn
+    txn ApplicationID
+    assert // can only call when not creating
+    callsub optInToApplication
+    intc_0 // 1
+    return
+
+main_requestData_route@4:
+    // smart_contracts/oracle/contract.algo.ts:46
+    // @abimethod({ allowActions: 'OptIn' })
+    txn OnCompletion
+    intc_0 // OptIn
+    ==
+    assert // OnCompletion is not OptIn
+    txn ApplicationID
+    assert // can only call when not creating
+    // smart_contracts/oracle/contract.algo.ts:18
+    // export class Oracle extends arc4.Contract {
+    txn GroupIndex
+    intc_0 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_0 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 1
+    extract 2 0
+    txna ApplicationArgs 2
+    btoi
+    txnas Assets
+    txna ApplicationArgs 3
+    extract 2 0
+    // smart_contracts/oracle/contract.algo.ts:46
+    // @abimethod({ allowActions: 'OptIn' })
+    callsub requestData
+    intc_0 // 1
+    return
+
+main_createApplication_route@3:
+    // smart_contracts/oracle/contract.algo.ts:31
+    // @abimethod({ onCreate: 'require' })
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    callsub createApplication
+    intc_0 // 1
+    return
+
+
+// smart_contracts/oracle/contract.algo.ts::Oracle.createApplication() -> void:
+createApplication:
+    // smart_contracts/oracle/contract.algo.ts:31-32
+    // @abimethod({ onCreate: 'require' })
+    // public createApplication(): void {
+    proto 0 0
+    // smart_contracts/oracle/contract.algo.ts:20
+    // admin = GlobalState<Account>()
+    bytec_1 // "admin"
+    // smart_contracts/oracle/contract.algo.ts:33
+    // this.admin.value = Global.currentApplicationAddress
+    global CurrentApplicationAddress
+    app_global_put
+    // smart_contracts/oracle/contract.algo.ts:21
+    // watcher = GlobalState<Account>()
+    bytec_2 // "watcher"
+    // smart_contracts/oracle/contract.algo.ts:34
+    // this.watcher.value = Global.currentApplicationAddress
+    global CurrentApplicationAddress
+    app_global_put
+    // smart_contracts/oracle/contract.algo.ts:22
+    // fee = GlobalState<uint64>()
+    bytec_3 // "fee"
+    // smart_contracts/oracle/contract.algo.ts:35
+    // this.fee.value = Uint64(1_000_000) // 1 ALGO in microalgos
+    pushint 1000000 // 1000000
+    app_global_put
+    retsub
+
+
+// smart_contracts/oracle/contract.algo.ts::Oracle.requestData(payment: uint64, pair: bytes, callbackApp: uint64, callbackMethod: bytes) -> void:
+requestData:
+    // smart_contracts/oracle/contract.algo.ts:46-47
+    // @abimethod({ allowActions: 'OptIn' })
+    // public requestData(payment: gtxn.PaymentTxn, pair: string, callbackApp: Asset, callbackMethod: string): void {
+    proto 4 0
+    // smart_contracts/oracle/contract.algo.ts:48
+    // assert(this.isWhitelisted(Txn.sender).value, 'Sender not whitelisted')
+    txn Sender
+    intc_1 // 0
+    // smart_contracts/oracle/contract.algo.ts:25
+    // isWhitelisted = LocalState<boolean>()
+    bytec_0 // "isWhitelisted"
+    // smart_contracts/oracle/contract.algo.ts:48
+    // assert(this.isWhitelisted(Txn.sender).value, 'Sender not whitelisted')
+    app_local_get_ex
+    assert // check LocalState exists
+    assert // Sender not whitelisted
+    // smart_contracts/oracle/contract.algo.ts:51-55
+    // assertMatch(payment, {
+    //   sender: Txn.sender,
+    //   receiver: Global.currentApplicationAddress,
+    //   amount: { greaterThanEq: this.fee.value },
+    // })
+    frame_dig -4
+    gtxns Sender
+    // smart_contracts/oracle/contract.algo.ts:52
+    // sender: Txn.sender,
+    txn Sender
+    // smart_contracts/oracle/contract.algo.ts:51-55
+    // assertMatch(payment, {
+    //   sender: Txn.sender,
+    //   receiver: Global.currentApplicationAddress,
+    //   amount: { greaterThanEq: this.fee.value },
+    // })
+    ==
+    bz requestData_bool_false@4
+    frame_dig -4
+    gtxns Receiver
+    // smart_contracts/oracle/contract.algo.ts:53
+    // receiver: Global.currentApplicationAddress,
+    global CurrentApplicationAddress
+    // smart_contracts/oracle/contract.algo.ts:51-55
+    // assertMatch(payment, {
+    //   sender: Txn.sender,
+    //   receiver: Global.currentApplicationAddress,
+    //   amount: { greaterThanEq: this.fee.value },
+    // })
+    ==
+    bz requestData_bool_false@4
+    frame_dig -4
+    gtxns Amount
+    // smart_contracts/oracle/contract.algo.ts:54
+    // amount: { greaterThanEq: this.fee.value },
+    intc_1 // 0
+    // smart_contracts/oracle/contract.algo.ts:22
+    // fee = GlobalState<uint64>()
+    bytec_3 // "fee"
+    // smart_contracts/oracle/contract.algo.ts:54
+    // amount: { greaterThanEq: this.fee.value },
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/oracle/contract.algo.ts:51-55
+    // assertMatch(payment, {
+    //   sender: Txn.sender,
+    //   receiver: Global.currentApplicationAddress,
+    //   amount: { greaterThanEq: this.fee.value },
+    // })
+    >=
+    bz requestData_bool_false@4
+    intc_0 // 1
+
+requestData_bool_merge@5:
+    // smart_contracts/oracle/contract.algo.ts:51-55
+    // assertMatch(payment, {
+    //   sender: Txn.sender,
+    //   receiver: Global.currentApplicationAddress,
+    //   amount: { greaterThanEq: this.fee.value },
+    // })
+    assert // assert target is match for conditions
+    // smart_contracts/oracle/contract.algo.ts:57
+    // const paymentAmount: uint64 = payment.amount - Uint64(1000) // Subtract fee
+    frame_dig -4
+    gtxns Amount
+    intc_2 // 1000
+    -
+    // smart_contracts/oracle/contract.algo.ts:60-67
+    // itxn
+    //   .payment({
+    //     receiver: this.watcher.value,
+    //     amount: paymentAmount,
+    //     fee: Uint64(1000),
+    //     note: 'oracle-request',
+    //   })
+    //   .submit()
+    itxn_begin
+    // smart_contracts/oracle/contract.algo.ts:62
+    // receiver: this.watcher.value,
+    intc_1 // 0
+    // smart_contracts/oracle/contract.algo.ts:21
+    // watcher = GlobalState<Account>()
+    bytec_2 // "watcher"
+    // smart_contracts/oracle/contract.algo.ts:62
+    // receiver: this.watcher.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/oracle/contract.algo.ts:65
+    // note: 'oracle-request',
+    pushbytes "oracle-request"
+    itxn_field Note
+    itxn_field Receiver
+    itxn_field Amount
+    // smart_contracts/oracle/contract.algo.ts:60-66
+    // itxn
+    //   .payment({
+    //     receiver: this.watcher.value,
+    //     amount: paymentAmount,
+    //     fee: Uint64(1000),
+    //     note: 'oracle-request',
+    //   })
+    intc_0 // 1
+    itxn_field TypeEnum
+    // smart_contracts/oracle/contract.algo.ts:64
+    // fee: Uint64(1000),
+    intc_2 // 1000
+    itxn_field Fee
+    // smart_contracts/oracle/contract.algo.ts:60-67
+    // itxn
+    //   .payment({
+    //     receiver: this.watcher.value,
+    //     amount: paymentAmount,
+    //     fee: Uint64(1000),
+    //     note: 'oracle-request',
+    //   })
+    //   .submit()
+    itxn_submit
+    retsub
+
+requestData_bool_false@4:
+    intc_1 // 0
+    b requestData_bool_merge@5
+
+
+// smart_contracts/oracle/contract.algo.ts::Oracle.optInToApplication() -> void:
+optInToApplication:
+    // smart_contracts/oracle/contract.algo.ts:74-75
+    // @abimethod({ allowActions: 'OptIn' })
+    // public optInToApplication(): void {
+    proto 0 0
+    // smart_contracts/oracle/contract.algo.ts:77
+    // this.isWhitelisted(Txn.sender).value = true
+    txn Sender
+    // smart_contracts/oracle/contract.algo.ts:25
+    // isWhitelisted = LocalState<boolean>()
+    bytec_0 // "isWhitelisted"
+    // smart_contracts/oracle/contract.algo.ts:77
+    // this.isWhitelisted(Txn.sender).value = true
+    intc_0 // 1
+    app_local_put
+    retsub
+
+
+// smart_contracts/oracle/contract.algo.ts::Oracle.setWhitelist(account: bytes, status: uint64) -> void:
+setWhitelist:
+    // smart_contracts/oracle/contract.algo.ts:86-87
+    // @abimethod({ allowActions: 'NoOp' })
+    // public setWhitelist(account: Account, status: boolean): void {
+    proto 2 0
+    // smart_contracts/oracle/contract.algo.ts:88
+    // assert(Txn.sender === this.admin.value, 'Only admin can modify whitelist status')
+    txn Sender
+    intc_1 // 0
+    // smart_contracts/oracle/contract.algo.ts:20
+    // admin = GlobalState<Account>()
+    bytec_1 // "admin"
+    // smart_contracts/oracle/contract.algo.ts:88
+    // assert(Txn.sender === this.admin.value, 'Only admin can modify whitelist status')
+    app_global_get_ex
+    assert // check GlobalState exists
+    ==
+    assert // Only admin can modify whitelist status
+    // smart_contracts/oracle/contract.algo.ts:89
+    // assert(account.isOptedIn(Global.currentApplicationId), 'Account must opt in to contract first')
+    frame_dig -2
+    global CurrentApplicationID
+    app_opted_in
+    assert // Account must opt in to contract first
+    // smart_contracts/oracle/contract.algo.ts:91
+    // this.isWhitelisted(account).value = status
+    frame_dig -2
+    // smart_contracts/oracle/contract.algo.ts:25
+    // isWhitelisted = LocalState<boolean>()
+    bytec_0 // "isWhitelisted"
+    // smart_contracts/oracle/contract.algo.ts:91
+    // this.isWhitelisted(account).value = status
+    frame_dig -1
+    app_local_put
+    retsub

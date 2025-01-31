@@ -1,0 +1,15 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../docs/docs"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			".github/**/*.yml": "github-actions-workflow"
+		}
+	}
+}

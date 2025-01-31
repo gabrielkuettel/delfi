@@ -21,7 +21,7 @@ export class Oracle extends arc4.Contract {
   watcher = GlobalState<Account>()
   fee = GlobalState<uint64>()
 
-  // Local state
+  // Local state with initial value
   isWhitelisted = LocalState<boolean>()
 
   /**
@@ -30,8 +30,8 @@ export class Oracle extends arc4.Contract {
    */
   @abimethod({ onCreate: 'require' })
   public createApplication(): void {
-    this.admin.value = Global.currentApplicationAddress
-    this.watcher.value = Global.currentApplicationAddress
+    this.admin.value = Txn.sender
+    this.watcher.value = Txn.sender
     this.fee.value = Uint64(1_000_000) // 1 ALGO in microalgos
   }
 
@@ -43,10 +43,9 @@ export class Oracle extends arc4.Contract {
    * @param callbackMethod Name of the callback method
    * @returns void
    */
-  @abimethod({ allowActions: 'OptIn' })
+  @abimethod({ allowActions: 'NoOp' })
   public requestData(payment: gtxn.PaymentTxn, pair: string, callbackApp: Asset, callbackMethod: string): void {
     assert(this.isWhitelisted(Txn.sender).value, 'Sender not whitelisted')
-
     // Verify payment transaction
     assertMatch(payment, {
       sender: Txn.sender,
